@@ -21,15 +21,14 @@ int main(){
     char command[1024];
     char *argv[64];
     char cwd[1024];
-    getcwd(cwd,sizeof(cwd));
+    //getcwd(cwd,sizeof(cwd));
     
-    //while (1)
     while(1){
-        cout<<"SS_";               //can be removed...tells you you're in simple shell
-        printf("%s$ ", cwd);
-        cout<<"$ ";
+        cout<<"Stephen's Shell>>";               
+        //printf("%s$ ", cwd);
+        //cout<<"$ ";
         cin.getline(command,1024); //read in command line
-        split(command,argv); //generates argument vector
+        split(command,argv,' '); //generates argument vector
 
         if (argv[0] == NULL){
             //do nothing
@@ -52,17 +51,21 @@ int main(){
 }
 
 /**
- * Processes command line argument and generates the argument vector
+ * Splits a given string into an array based on the delimeter
+ * @param[in]   line    The string to be parsed
+ * @param[out]  split   The array of split segments
+ * @param[in]   delim   The splitting delimeter
  */
-void split(char *line, char **argv){
+void split(char *line, char **split, char delim){
     while (*line != '\0'){ //if not EOL
-        while (*line == ' ') //replace spaces with \0
+        while (*line == delim) //replace spaces with \0
             *line++ = '\0'; 
-        *argv++ = line; //store address of argument
-        while (*line != '\0' && *line != ' ' && *line != '\t' && *line != '\n')
+        *split++ = line; //store address of argument
+        while (*line != '\0' && *line != delim && *line != '\t' && *line != '\n')
             line++;
     }
-    *argv = '\0'; //end of argument vector
+    *split = '\0'; //end of argument splittor
+    return;
 }
 
 /**
@@ -75,13 +78,12 @@ void execute_program(char **argv){
     if (pid == -1){
         //fork error
         cout<<"Fork error...\n";
-    } else if (pid == 0){
+    }else if (pid == 0){
         //child process
-        if (execv(*argv, argv) == -1)
+        if (execvp(argv[0], argv) == -1)
             printf("%s: command not found\n", argv[0]); 
-    } else if (pid > 0){
-        waitpid(-1, &status, WUNTRACED);
+    }else if (pid > 0){
         //shell process
+        waitpid(-1, &status, WUNTRACED);
     }
-    return;
 }
