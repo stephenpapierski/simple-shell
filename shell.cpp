@@ -41,21 +41,28 @@ int main(){
  */
 void process_argument(char **argv){
     static char cwd[1024];
-    bool redirected = false;
+    bool redirected_input = false;
+    bool redirected_output = false;
+    int input_index;
+    int output_index;
 
     //gather input file
-    int input_index;
     if ((input_index = index(argv, (char *)"<")) != -1){
         char *input = argv[input_index + 1];
         freopen(input, "r", stdin);
-        redirected = true;
+        redirected_input = true;
     }
-    //gather output file
 
-    //clean argv
-    if (redirected){
-        clean_argv(argv, input_index);
+    //gather output file
+    if ((output_index = index(argv, (char *)">")) != -1){
+        char *output = argv[output_index + 1];
+        freopen(output, "w", stdout);
+        redirected_output = true;
     }
+
+    //clean argv    //removes input/output redirecting from argv
+    if (redirected_input) clean_argv(argv, input_index);
+    if (redirected_output) clean_argv(argv, output_index);
     
     if (argv[0] == NULL){
         //do nothing
@@ -78,10 +85,8 @@ void process_argument(char **argv){
         }
         execute_program(argv, background); //execute program
     }
-    if (redirected){ //restore stdin and stdout
-        freopen("/dev/tty", "r", stdin); //restore stdin
-        //freopen("/dev/tty", "w", stdout); //restore stdout
-    }
+    if (redirected_input) freopen("/dev/tty", "r", stdin); //restore stdin
+    if (redirected_output) freopen("/dev/tty", "w", stdout); //restore stdout
 }
 
 /**
