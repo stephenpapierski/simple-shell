@@ -21,12 +21,9 @@ using namespace std;
 int main(){
     char command[1024];
     char *argv[64];
-    //getcwd(cwd,sizeof(cwd));
     
     while(1){
         cout<<"Stephen's Shell>>";               
-        //printf("%s$ ", cwd);
-        //cout<<"$ ";
         cin.getline(command,1024); //read in command line
         split(command,argv,' '); //generates argument vector
         process_argument(argv);
