@@ -41,6 +41,22 @@ int main(){
  */
 void process_argument(char **argv){
     static char cwd[1024];
+    bool redirected = false;
+
+    //gather input file
+    int input_index;
+    if ((input_index = index(argv, (char *)"<")) != -1){
+        char *input = argv[input_index + 1];
+        freopen(input, "r", stdin);
+        redirected = true;
+    }
+    //gather output file
+
+    //clean argv
+    if (redirected){
+        clean_argv(argv, input_index);
+    }
+    
     if (argv[0] == NULL){
         //do nothing
     }else if (strcmp(argv[0],"exit") == 0){         //exit
@@ -56,10 +72,15 @@ void process_argument(char **argv){
     }else{
         bool background = false;
         if (strcmp(argv[arraySize(argv)-1], "&") == 0){ //checks for & background option
+        print_array(argv);
             argv[arraySize(argv)-1] = NULL; //removes & from argument vector
             background = true;
         }
         execute_program(argv, background); //execute program
+    }
+    if (redirected){ //restore stdin and stdout
+        freopen("/dev/tty", "r", stdin); //restore stdin
+        //freopen("/dev/tty", "w", stdout); //restore stdout
     }
 }
 
@@ -106,6 +127,17 @@ void execute_program(char **argv, bool background){
 //-----------------------------------------------------------------------------------------------------------
 
 /**
+ * Removes elements from the argument vector at and after the idx
+ * @param[in][out]  argv    The argument vector
+ * @param[in]       idx     The index of redirector
+ */
+void clean_argv(char **argv, int idx){
+    for (int i = idx; i < arraySize(argv); i++){
+        argv[i] = NULL;
+    }
+}
+
+/**
  * Splits a given string into an array based on the delimeter
  * @param[in]   line    The string to be parsed
  * @param[out]  split   The array of split segments
@@ -134,4 +166,31 @@ int arraySize(char **array){
         i++;
     }
     return i;
+}
+
+/**
+ * Finds the index of an element in an array
+ * @param[in]   argv    The array you are searching in
+ * @param[in]   element The element you are searching for
+ * @return      Index of the element in the given array
+ */
+int index(char **argv, char *element){
+    int idx = -1;
+    for (int i = 0; i < arraySize(argv); i++){
+        if (strcmp(argv[i], element) == 0){
+            idx = i;
+            break;
+        }
+    }
+    return idx;
+}
+
+/**
+ * Prints the contents of an array
+ * @param[in]   array   The array to print
+ */
+void print_array(char **array){
+    for (int i = 0; i < arraySize(array); i++){
+        printf("Arg[%d]  %s\n", i, array[i]);
+    }
 }

@@ -12,7 +12,10 @@ char version[] = "Simple Shell 0.1\nCopyright 2015 Stephen Papierski\nThis is fr
 int main(void);
 void process_argument(char **);
 void execute_program(char **, bool);
+void clean_argv(char **, int);
 void split(char *, char **, char);
 int arraySize(char **);
+int index(char **, char *);
+void print_array(char **);
 
 #endif
